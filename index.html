@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arsenic Processor X1 - Quantum Core</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    
+    :root {
+        --as-purple: #7c3aed;
+        --as-purple-glow: #a855f7;
+        --as-purple-dark: #5b21b6;
+        --bg-primary: #0a0118;
+        --bg-secondary: #13091f;
+        --text-primary: #f5f3ff;
+        --text-secondary: #c4b5fd;
+    }
+    
+    * {
+        scroll-behavior: smooth;
+    }
+    
+    body {
+        font-family: 'Space Grotesk', sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        overflow-x: hidden;
+    }
+    
+    .mono {
+        font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .glow-text {
+        text-shadow: 0 0 20px var(--as-purple-glow), 0 0 40px var(--as-purple-glow);
+    }
+    
+    .glow-border {
+        box-shadow: 0 0 20px rgba(168, 85, 247, 0.4), inset 0 0 20px rgba(168, 85, 247, 0.1);
+        border: 1px solid rgba(168, 85, 247, 0.5);
+    }
+    
+    .glow-hover:hover {
+        box-shadow: 0 0 30px rgba(168, 85, 247, 0.6), 0 0 60px rgba(168, 85, 247, 0.3);
+        transform: translateY(-2px);
+        transition: all 0.3s ease;
+    }
+    
+    .gradient-bg {
+        background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #1e0a33 100%);
+    }
+    
+    .circuit-bg {
+        background-image: 
+            linear-gradient(rgba(168, 85, 247, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(168, 85, 247, 0.03) 1px, transparent 1px);
+        background-size: 50px 50px;
+        animation: circuit-move 20s linear infinite;
+    }
+    
+    @keyframes circuit-move {
+        0% { background-position: 0 0; }
+        100% { background-position: 50px 50px; }
+    }
+    
+    .pulse-ring {
+        animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    @keyframes pulse-ring {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.05); }
+    }
+    
+    .float {
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+    }
+    
+    .core-rotate {
+        animation: rotate 20s linear infinite;
+    }
+    
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    .spec-card {
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(10, 1, 24, 0.8) 100%);
+        backdrop-filter: blur(10px);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .spec-card:hover {
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(10, 1, 24, 0.9) 100%);
+        transform: translateY(-8px);
+    }
+    
+    .progress-bar {
+        background: linear-gradient(90deg, var(--as-purple-dark) 0%, var(--as-purple) 50%, var(--as-purple-glow) 100%);
+        box-shadow: 0 0 15px var(--as-purple-glow);
+    }
+    
+    .nav-link {
+        position: relative;
+    }
+    
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: var(--as-purple-glow);
+        box-shadow: 0 0 10px var(--as-purple-glow);
+        transition: width 0.3s ease;
+    }
+    
+    .nav-link:hover::after {
+        width: 100%;
+    }
+    
+    .chip-grid {
+        background: 
+            radial-gradient(circle at 20% 50%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(124, 58, 237, 0.1) 0%, transparent 50%);
+    }
+</style>
+</head>
+<body class="gradient-bg">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-black/30 backdrop-blur-xl border-b border-violet-500/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-600 to-purple-800 flex items-center justify-center glow-border">
+                        <i data-lucide="cpu" class="w-6 h-6 text-violet-200"></i>
+                    </div>
+                    <span class="text-xl font-bold tracking-tight">AS <span class="text-violet-400">X1</span></span>
+                </div>
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#overview" class="nav-link text-sm text-violet-200 hover:text-white transition">Overview</a>
+                    <a href="#specs" class="nav-link text-sm text-violet-200 hover:text-white transition">Specifications</a>
+                    <a href="#performance" class="nav-link text-sm text-violet-200 hover:text-white transition">Performance</a>
+                    <a href="#architecture" class="nav-link text-sm text-violet-200 hover:text-white transition">Architecture</a>
+                    <button id="orderBtn" class="px-6 py-2 bg-gradient-to-r from-violet-600 to-purple-600 rounded-lg font-medium text-sm glow-hover">
+                        Pre-Order
+                    </button>
+                </div>
+                <button id="mobileMenu" class="md:hidden">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenuPanel" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-40 hidden">
+        <div class="flex flex-col items-center justify-center h-full gap-8 text-xl">
+            <a href="#overview" class="mobile-link">Overview</a>
+            <a href="#specs" class="mobile-link">Specifications</a>
+            <a href="#performance" class="mobile-link">Performance</a>
+            <a href="#architecture" class="mobile-link">Architecture</a>
+            <button class="px-8 py-3 bg-gradient-to-r from-violet-600 to-purple-600 rounded-lg font-medium glow-hover">
+                Pre-Order
+            </button>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="overview" class="relative min-h-screen flex items-center justify-center circuit-bg pt-20 overflow-hidden">
+        <div class="absolute inset-0 chip-grid"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div class="space-y-8">
+                    <div class="inline-block">
+                        <span class="px-4 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/30 text-violet-300 text-xs font-medium mono tracking-wider">
+                            QUANTUM VERIFIED • 3NM PROCESS
+                        </span>
+                    </div>
+                    <h1 class="text-5xl md:text-7xl font-bold leading-tight">
+                        Arsenic<br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-purple-400 to-violet-600 glow-text">Processor X1</span>
+                    </h1>
+                    <p class="text-lg text-violet-200/80 leading-relaxed max-w-xl">
+                        Harness the power of arsenic-doped semiconductor architecture. Engineered for extreme parallel processing, AI acceleration, and quantum-resistant cryptography with unprecedented thermal efficiency.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <button id="exploreBtn" class="px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 rounded-lg font-semibold glow-hover flex items-center gap-2">
+                            <span>Explore Specs</span>
+                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </button>
+                        <button id="demoBtn" class="px-8 py-4 bg-white/5 border border-violet-500/30 rounded-lg font-semibold hover:bg-white/10 transition flex items-center gap-2">
+                            <i data-lucide="play-circle" class="w-5 h-5"></i>
+                            <span>Watch Demo</span>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-6 pt-8">
+                        <div>
+                            <div class="text-3xl font-bold text-violet-400 mono counter" data-target="128">0</div>
+                            <div class="text-sm text-violet-300/60">Cores</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold text-violet-400 mono counter" data-target="5.8">0</div>
+                            <div class="text-sm text-violet-300/60">GHz Boost</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold text-violet-400 mono counter" data-target="45">0</div>
+                            <div class="text-sm text-violet-300/60">W TDP</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="relative w-full aspect-square flex items-center justify-center">
+                        <!-- Animated Core Visual -->
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-64 h-64 rounded-full border-2 border-violet-500/20 core-rotate"></div>
+                            <div class="absolute w-80 h-80 rounded-full border border-violet-500/10 core-rotate" style="animation-duration: 30s; animation-direction: reverse;"></div>
+                            <div class="absolute w-96 h-96 rounded-full border border-violet-500/5 core-rotate" style="animation-duration: 40s;"></div>
+                        </div>
+                        <div class="relative w-56 h-56 rounded-2xl bg-gradient-to-br from-violet-900/40 to-purple-900/40 glow-border float flex items-center justify-center backdrop-blur-sm">
+                            <div class="text-center">
+                                <div class="text-6xl font-bold text-violet-400 mono mb-2">As</div>
+                                <div class="text-sm text-violet-300/60 mono">33</div>
+                                <div class="text-xs text-violet-300/40 mono mt-1">74.92</div>
+                            </div>
+                            <div class="absolute -inset-4 bg-violet-500/20 rounded-2xl blur-2xl pulse-ring"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Specs Section -->
+    <section id="specs" class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-violet-400 text-sm font-semibold mono tracking-wider">TECHNICAL SPECIFICATIONS</span>
+                <h2 class="text-4xl md:text-5xl font-bold mt-4">Engineered for <span class="text-violet-400">Excellence</span></h2>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="spec-card rounded-xl p-6 glow-hover">
+                    <div class="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center mb-4">
+                        <i data-lucide="layers" class="w-6 h-6 text-violet-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Architecture</h3>
+                    <p class="text-violet-200/70 text-sm mb-4">Arsenic-V Quantum Core</p>
+                    <div class="space-y-2 mono text-xs text-violet-300/60">
+                        <div class="flex justify-between"><span>Process Node</span><span class="text-violet-300">3nm AsGa+ </span></div>
+                        <div class="flex justify-between"><span>Transistors</span><span class="text-violet-300">142B</span></div>
+                        <div class="flex justify-between"><span>Die Size</span><span class="text-violet-300">601mm²</span></div>
+                    </div>
+                </div>
+
+                <div class="spec-card rounded-xl p-6 glow-hover">
+                    <div class="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center mb-4">
+                        <i data-lucide="cpu" class="w-6 h-6 text-violet-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Processing Power</h3>
+                    <p class="text-violet-200/70 text-sm mb-4">128 Performance Cores</p>
+                    <div class="space-y-2 mono text-xs text-violet-300/60">
+                        <div class="flex justify-between"><span>Base Clock</span><span class="text-violet-300">3.2 GHz</span></div>
+                        <div class="flex justify-between"><span>Boost Clock</span><span class="text-violet-300">5.8 GHz</span></div>
+                        <div class="flex justify-between"><span>L3 Cache</span><span class="text-violet-300">512 MB</span></div>
+                    </div>
+                </div>
+
+                <div class="spec-card rounded-xl p-6 glow-hover">
+                    <div class="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center mb-4">
+                        <i data-lucide="zap" class="w-6 h-6 text-violet-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Power Efficiency</h3>
+                    <p class="text-violet-200/70 text-sm mb-4">Next-Gen Power Delivery</p>
+                    <div class="space-y-2 mono text-xs text-violet-300/60">
+                        <div class="flex justify-between"><span>TDP</span><span class="text-violet-300">45W</span></div>
+                        <div class="flex justify-between"><span>Peak Power</span><span class="text-violet-300">95W</span></div>
+                        <div class="flex justify-between"><span>Efficiency</span><span class="text-violet-300">8.2 GFLOPS/W</span></div>
+                    </div>
+                </div>
+
+                <div class="spec-card rounded-xl p-6 glow-hover">
+                    <div class="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center mb-4">
+                        <i data-lucide="brain-circuit" class="w-6 h-6 text-violet-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">AI Acceleration</h3>
+                    <p class="text-violet-200/70 text-sm mb-4">Neural Processing Unit</p>
+                    <div class="space-y-2 mono text-xs text-violet-300/60">
+                        <div class="flex justify-between"><span>NPU Cores</span><span class="text-violet-300">64</span></div>
+                        <div class="flex justify-between"><span>INT8 TOPS</span><span class="text-violet-300">3400</span></div>
+                        <div class="flex justify-between"><span>FP16 TFLOPS</span><span class="text-violet-300">850</span></div>
+                    </div>
+                </div>
+
+                <div class="spec-card rounded-xl p-6 glow-hover">
+                    <div class="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center mb-4">
+                        <i data-lucide="memory-stick" class="w-6 h-6 text-violet-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Memory System</h3>
+                    <p class="text-violet-200/70 text-sm mb-4">Ultra-Fast Interface</p>
+                    <div class="space-y-2 mono text-xs text-violet-300/60">
+                        <div class="flex justify-between"><span>Memory Type</span><span class="text-violet-300">DDR5-8400</span></div>
+                        <div class="flex justify-between"><span>Channels</span><span class="text-violet-300">8-Channel</span></div>
+                        <div class="flex justify-between"><span>Bandwidth</span><span class="text-violet-300">512 GB/s</span></div>
+                    </div>
+                </div>
+
+                <div class="spec-card rounded-xl p-6 glow-hover">
+                    <div class="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center mb-4">
+                        <i data-lucide="shield-check" class="w-6 h-6 text-violet-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Security</h3>
+                    <p class="text-violet-200/70 text-sm mb-4">Quantum-Resistant</p>
+                    <div class="space-y-2 mono text-xs text-violet-300/60">
+                        <div class="flex justify-between"><span>Encryption</span><span class="text-violet-300">AES-512</span></div>
+                        <div class="flex justify-between"><span>TPM</span><span class="text-violet-300">3.0</span></div>
+                        <div class="flex justify-between"><span>Secure Boot</span><span class="text-violet-300">AsGuard™</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Performance Section -->
+    <section id="performance" class="py-24 relative bg-black/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-violet-400 text-sm font-semibold mono tracking-wider">BENCHMARK RESULTS</span>
+                <h2 class="text-4xl md:text-5xl font-bold mt-4">Unmatched <span class="text-violet-400">Performance</span></h2>
+            </div>
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-8">
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="font-medium">Single-Core Performance</span>
+                            <span class="mono text-violet-400">98%</span>
+                        </div>
+                        <div class="h-3 bg-violet-950 rounded-full overflow-hidden">
+                            <div class="progress-bar h-full rounded-full" style="width: 98%"></div>
+                        </div>
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="font-medium">Multi-Core Efficiency</span>
+                            <span class="mono text-violet-400">94%</span>
+                        </div>
+                        <div class="h-3 bg-violet-950 rounded-full overflow-hidden">
+                            <div class="progress-bar h-full rounded-full" style="width: 94%"></div>
+                        </div>
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="font-medium">AI Inference Speed</span>
+                            <span class="mono text-violet-400">100%</span>
+                        </div>
+                        <div class="h-3 bg-violet-950 rounded-full overflow-hidden">
+                            <div class="progress-bar h-full rounded-full" style="width: 100%"></div>
+                        </div>
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="font-medium">Power Efficiency</span>
+                            <span class="mono text-violet-400">92%</span>
+                        </div>
+                        <div class="h-3 bg-violet-950 rounded-full overflow-hidden">
+                            <div class="progress-bar h-full rounded-full" style="width: 92%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="font-medium">Thermal Performance</span>
+                            <span class="mono text-violet-400">96%</span>
+                        </div>
+                        <div class="h-3 bg-violet-950 rounded-full overflow-hidden">
+                            <div class="progress-bar h-full rounded-full" style="width: 96%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="rounded-2xl bg-gradient-to-br from-violet-900/20 to-purple-900/20 glow-border p-8 backdrop-blur-sm">
+                        <h3 class="text-2xl font-bold mb-6">Benchmark Comparison</h3>
+                        <div class="space-y-6">
+                            <div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span>Cinebench R24 Multi</span>
+                                    <span class="text-violet-400 mono">48,520 pts</span>
+                                </div>
+                                <div class="h-2 bg-violet-950 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-violet-600 to-purple-500 rounded-full pulse-ring" style="width: 95%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span>Geekbench 6 Single</span>
+                                    <span class="text-violet-400 mono">4,280 pts</span>
+                                </div>
+                                <div class="h-2 bg-violet-950 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-violet-600 to-purple-500 rounded-full" style="width: 98%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span>AI Benchmark</span>
+                                    <span class="text-violet-400 mono">12,840 pts</span>
+                                </div>
+                                <div class="h-2 bg-violet-950 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-violet-600 to-purple-500 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div class="pt-4 border-t border-violet-500/20">
+                                <p class="text-xs text-violet-300/60 mono">vs Industry Leading Competitors • +42% Performance Gain</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section id="architecture" class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-violet-400 text-sm font-semibold mono tracking-wider">CORE ARCHITECTURE</span>
+                <h2 class="text-4xl md:text-5xl font-bold mt-4">Arsenic-V <span class="text-violet-400">Quantum</span></h2>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-violet-600/20 to-purple-600/20 glow-border flex items-center justify-center mb-6 float">
+                        <i data-lucide="atom" class="w-10 h-10 text-violet-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Quantum Doping</h3>
+                    <p class="text-violet-200/70 text-sm leading-relaxed">
+                        Arsenic-enhanced silicon lattice enables electron mobility 4.2x higher than traditional processors, reducing latency and power consumption.
+                    </p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-violet-600/20 to-purple-600/20 glow-border flex items-center justify-center mb-6 float" style="animation-delay: 2s;">
+                        <i data-lucide="network" class="w-10 h-10 text-violet-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Neural Interconnect</h3>
+                    <p class="text-violet-200/70 text-sm leading-relaxed">
+                        3D mesh architecture with 2.5D stacking technology. Direct core-to-core communication at 1TB/s bandwidth with zero-cache latency.
+                    </p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-violet-600/20 to-purple-600/20 glow-border flex items-center justify-center mb-6 float" style="animation-delay: 4s;">
+                        <i data-lucide="thermometer-snowflake" class="w-10 h-10 text-violet-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Thermal Design</h3>
+                    <p class="text-violet-200/70 text-sm leading-relaxed">
+                        Advanced vapor chamber with arsenic-gallium thermal interface. Maintains sub-70°C under full load with 45W TDP efficiency.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-24 relative">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="rounded-3xl bg-gradient-to-br from-violet-900/30 to-purple-900/30 glow-border p-12 text-center backdrop-blur-sm relative overflow-hidden">
+                <div class="absolute inset-0 circuit-bg opacity-30"></div>
+                <div class="relative z-10">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">Ready to Experience the Future?</h2>
+                    <p class="text-violet-200/80 mb-8 max-w-2xl mx-auto">
+                        Join the quantum revolution. Limited production run of 10,000 units. Pre-order now and receive exclusive developer access.
+                    </p>
+                    <div class="flex flex-wrap gap-4 justify-center">
+                        <button id="preorderMain" class="px-10 py-4 bg-gradient-to-r from-violet-600 to-purple-600 rounded-lg font-semibold text-lg glow-hover">
+                            Pre-Order X1 - $2,499
+                        </button>
+                        <button id="techSpecBtn" class="px-10 py-4 bg-white/5 border border-violet-500/30 rounded-lg font-semibold text-lg hover:bg-white/10 transition">
+                            Download Tech Specs
+                        </button>
+                    </div>
+                    <p class="text-xs text-violet-300/60 mono mt-6">Expected Shipping: Q2 2025 • 3-Year Warranty Included</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-violet-500/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-800 flex items-center justify-center">
+                        <i data-lucide="cpu" class="w-5 h-5 text-violet-200"></i>
+                    </div>
+                    <span class="font-bold">Arsenic Processor X1</span>
+                </div>
+                <div class="flex gap-6 text-sm text-violet-300/60">
+                    <a href="#" class="hover:text-violet-300 transition">Documentation</a>
+                    <a href="#" class="hover:text-violet-300 transition">Support</a>
+                    <a href="#" class="hover:text-violet-300 transition">Privacy</a>
+                    <a href="#" class="hover:text-violet-300 transition">Terms</a>
+                </div>
+                <div class="text-sm text-violet-300/40 mono">© 2025 QuantumCore Labs</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-50 hidden items-center justify-center p-4">
+        <div class="bg-gradient-to-br from-violet-950 to-black rounded-2xl glow-border p-8 max-w-md w-full">
+            <div class="flex justify-between items-start mb-6">
+                <h3 class="text-2xl font-bold" id="modalTitle">Pre-Order Confirmed</h3>
+                <button id="closeModal" class="text-violet-300 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div id="modalContent" class="text-violet-200/80 mb-6">
+                Thank you for your interest in the Arsenic Processor X1. A representative will contact you within 24 hours to confirm your pre-order.
+            </div>
+            <button id="modalClose" class="w-full py-3 bg-gradient-to-r from-violet-600 to-purple-600 rounded-lg font-semibold glow-hover">
+                Got It
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Mobile menu toggle
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuPanel = document.getElementById('mobileMenuPanel');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+        
+        mobileMenu.addEventListener('click', () => {
+            mobileMenuPanel.classList.toggle('hidden');
+        });
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenuPanel.classList.add('hidden');
+            });
+        });
+
+        // Modal functionality
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalContent = document.getElementById('modalContent');
+        const closeModal = document.getElementById('closeModal');
+        const modalClose = document.getElementById('modalClose');
+
+        function showModal(title, content) {
+            modalTitle.textContent = title;
+            modalContent.textContent = content;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function hideModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        closeModal.addEventListener('click', hideModal);
+        modalClose.addEventListener('click', hideModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) hideModal();
+        });
+
+        // Button handlers
+        document.getElementById('orderBtn').addEventListener('click', () => {
+            showModal('Pre-Order Arsenic X1', 'Thank you for your interest! Our sales team will contact you within 24 hours to confirm your pre-order and discuss shipping details.');
+        });
+
+        document.getElementById('preorderMain').addEventListener('click', () => {
+            showModal('Pre-Order Confirmed', 'Your Arsenic Processor X1 has been reserved. Check your email for order confirmation and payment instructions.');
+        });
+
+        document.getElementById('exploreBtn').addEventListener('click', () => {
+            document.getElementById('specs').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        document.getElementById('demoBtn').addEventListener('click', () => {
+            showModal('Demo Video', 'The product demonstration video is loading. Experience the Arsenic X1 in action with real-world AI, gaming, and compute workloads.');
+        });
+
+        document.getElementById('techSpecBtn').addEventListener('click', () => {
+            showModal('Technical Specifications', 'Downloading comprehensive technical documentation. PDF includes architecture diagrams, instruction sets, and integration guides.');
+        });
+
+        // Counter animation
+        const counters = document.querySelectorAll('.counter');
+        const observerOptions = { threshold: 0.5 };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const counter = entry.target;
+                    const target = parseFloat(counter.dataset.target);
+                    const duration = 2000;
+                    const increment = target / (duration / 16);
+                    let current = 0;
+                    
+                    const updateCounter = () => {
+                        current += increment;
+                        if (current < target) {
+                            counter.textContent = current.toFixed(target % 1 === 0 ? 0 : 1);
+                            requestAnimationFrame(updateCounter);
+                        } else {
+                            counter.textContent = target;
+                        }
+                    };
+                    
+                    updateCounter();
+                    observer.unobserve(counter);
+                }
+            });
+        }, observerOptions);
+
+        counters.forEach(counter => observer.observe(counter));
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+<script>(function(){document.addEventListener("click",function(e){var a=e.target.closest("[data-product-id]");if(!a)return;e.preventDefault();var pid=a.getAttribute("data-product-id");if(pid)parent.postMessage({type:"ecto-artifact-link-click",productId:pid},"*")})})();</script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phosphorus Processor P1 - Photon Core</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    
+    :root {
+        --p-orange: #f97316;
+        --p-orange-glow: #fb923c;
+        --p-orange-dark: #ea580c;
+        --p-amber: #f59e0b;
+        --bg-primary: #140c01;
+        --bg-secondary: #1f1404;
+        --text-primary: #fff7ed;
+        --text-secondary: #fed7aa;
+    }
+    
+    * {
+        scroll-behavior: smooth;
+    }
+    
+    body {
+        font-family: 'Space Grotesk', sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        overflow-x: hidden;
+    }
+    
+    .mono {
+        font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .glow-text {
+        text-shadow: 0 0 20px var(--p-orange-glow), 0 0 40px var(--p-orange-glow);
+    }
+    
+    .glow-border {
+        box-shadow: 0 0 20px rgba(251, 146, 60, 0.4), inset 0 0 20px rgba(251, 146, 60, 0.1);
+        border: 1px solid rgba(251, 146, 60, 0.5);
+    }
+    
+    .glow-hover:hover {
+        box-shadow: 0 0 30px rgba(251, 146, 60, 0.6), 0 0 60px rgba(251, 146, 60, 0.3);
+        transform: translateY(-2px);
+        transition: all 0.3s ease;
+    }
+    
+    .gradient-bg {
+        background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #2a1805 100%);
+    }
+    
+    .circuit-bg {
+        background-image: 
+            linear-gradient(rgba(251, 146, 60, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(251, 146, 60, 0.03) 1px, transparent 1px);
+        background-size: 50px 50px;
+        animation: circuit-move 20s linear infinite;
+    }
+    
+    @keyframes circuit-move {
+        0% { background-position: 0 0; }
+        100% { background-position: 50px 50px; }
+    }
+    
+    .pulse-ring {
+        animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    @keyframes pulse-ring {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.05); }
+    }
+    
+    .float {
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+    }
+    
+    .core-rotate {
+        animation: rotate 20s linear infinite;
+    }
+    
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    .spec-card {
+        background: linear-gradient(135deg, rgba(249, 115, 22, 0.1) 0%, rgba(20, 12, 1, 0.8) 100%);
+        backdrop-filter: blur(10px);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .spec-card:hover {
+        background: linear-gradient(135deg, rgba(249, 115, 22, 0.2) 0%, rgba(20, 12, 1, 0.9) 100%);
+        transform: translateY(-8px);
+    }
+    
+    .progress-bar {
+        background: linear-gradient(90deg, var(--p-orange-dark) 0%, var(--p-orange) 50%, var(--p-orange-glow) 100%);
+        box-shadow: 0 0 15px var(--p-orange-glow);
+    }
+    
+    .nav-link {
+        position: relative;
+    }
+    
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: var(--p-orange-glow);
+        box-shadow: 0 0 10px var(--p-orange-glow);
+        transition: width 0.3s ease;
+    }
+    
+    .nav-link:hover::after {
+        width: 100%;
+    }
+    
+    .chip-grid {
+        background: 
+            radial-gradient(circle at 20% 50%, rgba(251, 146, 60, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(249, 115, 22, 0.1) 0%, transparent 50%);
+    }
+</style>
+</head>
+<body class="gradient-bg">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-black/30 backdrop-blur-xl border-b border-orange-500/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-600 to-amber-700 flex items-center justify-center glow-border">
+                        <i data-lucide="cpu" class="w-6 h-6 text-orange-200"></i>
+                    </div>
+                    <span class="text-xl font-bold tracking-tight">P <span class="text-orange-400">P1</span></span>
+                </div>
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#overview" class="nav-link text-sm text-orange-200 hover:text-white transition">Overview</a>
+                    <a href="#specs" class="nav-link text-sm text-orange-200 hover:text-white transition">Specifications</a>
+                    <a href="#performance" class="nav-link text-sm text-orange-200 hover:text-white transition">Performance</a>
+                    <a href="#architecture" class="nav-link text-sm text-orange-200 hover:text-white transition">Architecture</a>
+                    <button id="orderBtn" class="px-6 py-2 bg-gradient-to-r from-orange-600 to-amber-600 rounded-lg font-medium text-sm glow-hover">
+                        Pre-Order
+                    </button>
+                </div>
+                <button id="mobileMenu" class="md:hidden">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenuPanel" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-40 hidden">
+        <div class="flex flex-col items-center justify-center h-full gap-8 text-xl">
+            <a href="#overview" class="mobile-link">Overview</a>
+            <a href="#specs" class="mobile-link">Specifications</a>
+            <a href="#performance" class="mobile-link">Performance</a>
+            <a href="#architecture" class="mobile-link">Architecture</a>
+            <button class="px-8 py-3 bg-gradient-to-r from-orange-600 to-amber-600 rounded-lg font-medium glow-hover">
+                Pre-Order
+            </button>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="overview" class="relative min-h-screen flex items-center justify-center circuit-bg pt-20 overflow-hidden">
+        <div class="absolute inset-0 chip-grid"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div class="space-y-8">
+                    <div class="inline-block">
+                        <span class="px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-300 text-xs font-medium mono tracking-wider">
+                            PHOTON VERIFIED • 4NM PROCESS
+                        </span>
+                    </div>
+                    <h1 class="text-5xl md:text-7xl font-bold leading-tight">
+                        Phosphorus<br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-400 to-orange-600 glow-text">Processor P1</span>
+                    </h1>
+                    <p class="text-lg text-orange-200/80 leading-relaxed max-w-xl">
+                        Illuminate your workloads with phosphorus-based photonic computing. Revolutionary light-speed data processing for real-time AI inference, HFT, and next-gen visualization with unmatched energy efficiency.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <button id="exploreBtn" class="px-8 py-4 bg-gradient-to-r from-orange-600 to-amber-600 rounded-lg font-semibold glow-hover flex items-center gap-2">
+                            <span>Explore Specs</span>
+                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </button>
+                        <button id="demoBtn" class="px-8 py-4 bg-white/5 border border-orange-500/30 rounded-lg font-semibold hover:bg-white/10 transition flex items-center gap-2">
+                            <i data-lucide="play-circle" class="w-5 h-5"></i>
+                            <span>Watch Demo</span>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-6 pt-8">
+                        <div>
+                            <div class="text-3xl font-bold text-orange-400 mono counter" data-target="96">0</div>
+                            <div class="text-sm text-orange-300/60">Cores</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold text-orange-400 mono counter" data-target="6.2">0</div>
+                            <div class="text-sm text-orange-300/60">GHz Boost</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold text-orange-400 mono counter" data-target="35">0</div>
+                            <div class="text-sm text-orange-300/60">W TDP</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="relative w-full aspect-square flex items-center justify-center">
+                        <!-- Animated Core Visual -->
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-64 h-64 rounded-full border-2 border-orange-500/20 core-rotate"></div>
+                            <div class="absolute w-80 h-80 rounded-full border border-orange-500/10 core-rotate" style="animation-duration: 30s; animation-direction: reverse;"></div>
+                            <div class="absolute w-96 h-96 rounded-full border border-orange-500/5 core-rotate" style="animation-duration: 40s;"></div>
+                        </div>
+                        <div class="relative w-56 h-56 rounded-2xl bg-gradient-to-br from-orange-900/40 to-amber-900/40 glow-border float flex items-center justify-center backdrop-blur-sm">
+                            <div class="text-center">
+                                <div class="text-6xl font-bold text-orange-400 mono mb-2">P</div>
+                                <div class="text-sm text-orange-300/60 mono">15</div>
+                                <div class="text-xs text-orange-300/40 mono mt-1">30.97</div>
+                            </div>
+                            <div class="absolute -inset-4 bg-orange-500/20 rounded-2xl blur-2xl pulse-ring"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Specs Section -->
+    <section id="specs" class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-orange-400 text-sm font-semibold mono tracking-wider">TECHNICAL SPECIFICATIONS</span>
+                <h2 class="text-4xl md:text-5xl font-bold mt-4">Built for <span class="text-orange-400">Velocity</span></h2>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="spec-card rounded-xl p-6 glow-hover">
+                    <div class="w-12 h-12 rounded-lg bg-orange-500/10 flex items-center justify-center mb-4">
+                        <i data-lucide="layers" class="w-6 h-6 text-orange-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Architecture</h3>
+                    <p class="text-orange-200/70 text-sm mb-4">Phosphorus-P Photon Core</p>
+                    <div class="space-y-2 mono text-xs text-orange-300/60">
+                        <div class="flex justify-between"><span>Process Node</span><span class="text-orange-300">4nm PhSi+ </span></div>
+                        <div class="flex justify-between"><span>Transistors</span><span class="text-orange-300">98B</span></div>
+                        <div class="flex justify-between"><span>Die Size</span><span class="text-orange-300">524mm²</span></div>
+                    </div>
+                </div>
+
+                <div class="spec-card rounded-xl p-6 glow-hover">
+                    <div class="w-12 h-12 rounded-lg bg-orange-500/10 flex items-center justify-center mb-4">
+                        <i data-lucide="cpu" class="w-6 h-6 text-orange-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Processing Power</h3>
+                    <p class="text-orange-200/70 text-sm mb-4">96 Performance Cores</p>
+                    <div class="space-y-2 mono text-xs text-orange-300/60">
+                        <div class="flex justify-between"><span>Base Clock</span><span class="text-orange-300">3.8 GHz</span></div>
+                        <div class="flex justify-between"><span>Boost Clock</span><span class="text-orange-300">6.2 GHz</span></div>
+                        <div class="flex justify-between"><span>L3 Cache</span><span class="text-orange-300">384 MB</span></div>
+                    </div>
+                </div>
+
+                <div class="spec-card rounded-xl p-6 glow-hover">
+                    <div class="w-12 h-12 rounded-lg bg-orange-500/10 flex items-center justify-center mb-4">
+                        <i data-lucide="zap" class="w-6 h-6 text-orange-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Power Efficiency</h3>
+                    <p class="text-orange-200/70 text-sm mb-4">Photonic Power Delivery</p>
+                    <div class="space-y-2 mono text-xs text-orange-300/60">
+                        <div class="flex justify-between"><span>TDP</span><span class="text-orange-300">35W</span></div>
+                        <div class="flex justify-between"><span>Peak Power</span><span class="text-orange-300">75W</span></div>
+                        <div class="flex justify-between"><span>Efficiency</span><span class="text-orange-300">9.8 GFLOPS/W</span></div>
+                    </div>
+                </div>
+
+                <div class="spec-card rounded-xl p-6 glow-hover">
+                    <div class="w-12 h-12 rounded-lg bg-orange-500/10 flex items-center justify-center mb-4">
+                        <i data-lucide="brain-circuit" class="w-6 h-6 text-orange-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">AI Acceleration</h3>
+                    <p class="text-orange-200/70 text-sm mb-4">Photon Neural Engine</p>
+                    <div class="space-y-2 mono text-xs text-orange-300/60">
+                        <div class="flex justify-between"><span>NPU Cores</span><span class="text-orange-300">48</span></div>
+                        <div class="flex justify-between"><span>INT8 TOPS</span><span class="text-orange-300">2800</span></div>
+                        <div class="flex justify-between"><span>FP16 TFLOPS</span><span class="text-orange-300">720</span></div>
+                    </div>
+                </div>
+
+                <div class="spec-card rounded-xl p-6 glow-hover">
+                    <div class="w-12 h-12 rounded-lg bg-orange-500/10 flex items-center justify-center mb-4">
+                        <i data-lucide="memory-stick" class="w-6 h-6 text-orange-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Memory System</h3>
+                    <p class="text-orange-200/70 text-sm mb-4">Optical Interface</p>
+                    <div class="space-y-2 mono text-xs text-orange-300/60">
+                        <div class="flex justify-between"><span>Memory Type</span><span class="text-orange-300">DDR5-7200</span></div>
+                        <div class="flex justify-between"><span>Channels</span><span class="text-orange-300">6-Channel</span></div>
+                        <div class="flex justify-between"><span>Bandwidth</span><span class="text-orange-300">432 GB/s</span></div>
+                    </div>
+                </div>
+
+                <div class="spec-card rounded-xl p-6 glow-hover">
+                    <div class="w-12 h-12 rounded-lg bg-orange-500/10 flex items-center justify-center mb-4">
+                        <i data-lucide="shield-check" class="w-6 h-6 text-orange-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Security</h3>
+                    <p class="text-orange-200/70 text-sm mb-4">Photon-Encrypted</p>
+                    <div class="space-y-2 mono text-xs text-orange-300/60">
+                        <div class="flex justify-between"><span>Encryption</span><span class="text-orange-300">AES-384</span></div>
+                        <div class="flex justify-between"><span>TPM</span><span class="text-orange-300">3.0</span></div>
+                        <div class="flex justify-between"><span>Secure Boot</span><span class="text-orange-300">PhosGuard™</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Performance Section -->
+    <section id="performance" class="py-24 relative bg-black/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-orange-400 text-sm font-semibold mono tracking-wider">BENCHMARK RESULTS</span>
+                <h2 class="text-4xl md:text-5xl font-bold mt-4">Lightning <span class="text-orange-400">Fast</span></h2>
+            </div>
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-8">
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="font-medium">Single-Core Performance</span>
+                            <span class="mono text-orange-400">100%</span>
+                        </div>
+                        <div class="h-3 bg-orange-950 rounded-full overflow-hidden">
+                            <div class="progress-bar h-full rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="font-medium">Multi-Core Efficiency</span>
+                            <span class="mono text-orange-400">91%</span>
+                        </div>
+                        <div class="h-3 bg-orange-950 rounded-full overflow-hidden">
+                            <div class="progress-bar h-full rounded-full" style="width: 91%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="font-medium">AI Inference Speed</span>
+                            <span class="mono text-orange-400">96%</span>
+                        </div>
+                        <div class="h-3 bg-orange-950 rounded-full overflow-hidden">
+                            <div class="progress-bar h-full rounded-full" style="width: 96%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="font-medium">Power Efficiency</span>
+                            <span class="mono text-orange-400">98%</span>
+                        </div>
+                        <div class="h-3 bg-orange-950 rounded-full overflow-hidden">
+                            <div class="progress-bar h-full rounded-full" style="width: 98%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="font-medium">Thermal Performance</span>
+                            <span class="mono text-orange-400">99%</span>
+                        </div>
+                        <div class="h-3 bg-orange-950 rounded-full overflow-hidden">
+                            <div class="progress-bar h-full rounded-full" style="width: 99%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="rounded-2xl bg-gradient-to-br from-orange-900/20 to-amber-900/20 glow-border p-8 backdrop-blur-sm">
+                        <h3 class="text-2xl font-bold mb-6">Benchmark Comparison</h3>
+                        <div class="space-y-6">
+                            <div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span>Cinebench R24 Single</span>
+                                    <span class="text-orange-400 mono">4,520 pts</span>
+                                </div>
+                                <div class="h-2 bg-orange-950 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-orange-600 to-amber-500 rounded-full pulse-ring" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span>Geekbench 6 Multi</span>
+                                    <span class="text-orange-400 mono">36,840 pts</span>
+                                </div>
+                                <div class="h-2 bg-orange-950 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-orange-600 to-amber-500 rounded-full" style="width: 93%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span>ML Performance</span>
+                                    <span class="text-orange-400 mono">10,920 pts</span>
+                                </div>
+                                <div class="h-2 bg-orange-950 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-orange-600 to-amber-500 rounded-full" style="width: 96%"></div>
+                                </div>
+                            </div>
+                            <div class="pt-4 border-t border-orange-500/20">
+                                <p class="text-xs text-orange-300/60 mono">vs Industry Leading Competitors • +38% Single-Core Lead</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section id="architecture" class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-orange-400 text-sm font-semibold mono tracking-wider">CORE ARCHITECTURE</span>
+                <h2 class="text-4xl md:text-5xl font-bold mt-4">Phosphorus-P <span class="text-orange-400">Photon</span></h2>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-orange-600/20 to-amber-600/20 glow-border flex items-center justify-center mb-6 float">
+                        <i data-lucide="sun" class="w-10 h-10 text-orange-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Photonic Doping</h3>
+                    <p class="text-orange-200/70 text-sm leading-relaxed">
+                        Phosphorus-infused waveguides enable optical signal transmission at near light-speed. 10x reduction in interconnect latency vs copper.
+                    </p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-orange-600/20 to-amber-600/20 glow-border flex items-center justify-center mb-6 float" style="animation-delay: 2s;">
+                        <i data-lucide="git-branch" class="w-10 h-10 text-orange-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Light-Path Routing</h3>
+                    <p class="text-orange-200/70 text-sm leading-relaxed">
+                        On-die photonic network delivers 2TB/s core communication. Zero electrical resistance ensures perfect signal integrity at 6.2GHz.
+                    </p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-orange-600/20 to-amber-600/20 glow-border flex items-center justify-center mb-6 float" style="animation-delay: 4s;">
+                        <i data-lucide="snowflake" class="w-10 h-10 text-orange-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Passive Cooling</h3>
+                    <p class="text-orange-200/70 text-sm leading-relaxed">
+                        Photonic computing generates minimal heat. Revolutionary phosphor matrix achieves 35W TDP while sustaining 6.2GHz boost indefinitely.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-24 relative">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="rounded-3xl bg-gradient-to-br from-orange-900/30 to-amber-900/30 glow-border p-12 text-center backdrop-blur-sm relative overflow-hidden">
+                <div class="absolute inset-0 circuit-bg opacity-30"></div>
+                <div class="relative z-10">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">Illuminate Your Potential</h2>
+                    <p class="text-orange-200/80 mb-8 max-w-2xl mx-auto">
+                        Be first to experience photonic computing. Founders Edition limited to 5,000 units. Pre-order today and unlock lifetime Photon Cloud access.
+                    </p>
+                    <div class="flex flex-wrap gap-4 justify-center">
+                        <button id="preorderMain" class="px-10 py-4 bg-gradient-to-r from-orange-600 to-amber-600 rounded-lg font-semibold text-lg glow-hover">
+                            Pre-Order P1 - $1,999
+                        </button>
+                        <button id="techSpecBtn" class="px-10 py-4 bg-white/5 border border-orange-500/30 rounded-lg font-semibold text-lg hover:bg-white/10 transition">
+                            Download Tech Specs
+                        </button>
+                    </div>
+                    <p class="text-xs text-orange-300/60 mono mt-6">Expected Shipping: Q1 2025 • 5-Year Warranty Included</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-orange-500/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-600 to-amber-700 flex items-center justify-center">
+                        <i data-lucide="cpu" class="w-5 h-5 text-orange-200"></i>
+                    </div>
+                    <span class="font-bold">Phosphorus Processor P1</span>
+                </div>
+                <div class="flex gap-6 text-sm text-orange-300/60">
+                    <a href="#" class="hover:text-orange-300 transition">Documentation</a>
+                    <a href="#" class="hover:text-orange-300 transition">Support</a>
+                    <a href="#" class="hover:text-orange-300 transition">Privacy</a>
+                    <a href="#" class="hover:text-orange-300 transition">Terms</a>
+                </div>
+                <div class="text-sm text-orange-300/40 mono">© 2025 PhotonCore Labs</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-50 hidden items-center justify-center p-4">
+        <div class="bg-gradient-to-br from-orange-950 to-black rounded-2xl glow-border p-8 max-w-md w-full">
+            <div class="flex justify-between items-start mb-6">
+                <h3 class="text-2xl font-bold" id="modalTitle">Pre-Order Confirmed</h3>
+                <button id="closeModal" class="text-orange-300 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div id="modalContent" class="text-orange-200/80 mb-6">
+                Thank you for your interest in the Phosphorus Processor P1. A representative will contact you within 24 hours to confirm your pre-order.
+            </div>
+            <button id="modalClose" class="w-full py-3 bg-gradient-to-r from-orange-600 to-amber-600 rounded-lg font-semibold glow-hover">
+                Got It
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Mobile menu toggle
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuPanel = document.getElementById('mobileMenuPanel');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+        
+        mobileMenu.addEventListener('click', () => {
+            mobileMenuPanel.classList.toggle('hidden');
+        });
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenuPanel.classList.add('hidden');
+            });
+        });
+
+        // Modal functionality
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalContent = document.getElementById('modalContent');
+        const closeModal = document.getElementById('closeModal');
+        const modalClose = document.getElementById('modalClose');
+
+        function showModal(title, content) {
+            modalTitle.textContent = title;
+            modalContent.textContent = content;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function hideModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        closeModal.addEventListener('click', hideModal);
+        modalClose.addEventListener('click', hideModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) hideModal();
+        });
+
+        // Button handlers
+        document.getElementById('orderBtn').addEventListener('click', () => {
+            showModal('Pre-Order Phosphorus P1', 'Thank you for your interest! Our sales team will contact you within 24 hours to confirm your pre-order and discuss shipping details.');
+        });
+
+        document.getElementById('preorderMain').addEventListener('click', () => {
+            showModal('Pre-Order Confirmed', 'Your Phosphorus Processor P1 has been reserved. Check your email for order confirmation and payment instructions.');
+        });
+
+        document.getElementById('exploreBtn').addEventListener('click', () => {
+            document.getElementById('specs').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        document.getElementById('demoBtn').addEventListener('click', () => {
+            showModal('Demo Video', 'The product demonstration video is loading. Experience the Phosphorus P1 photonic computing with real-time AI and visualization workloads.');
+        });
+
+        document.getElementById('techSpecBtn').addEventListener('click', () => {
+            showModal('Technical Specifications', 'Downloading comprehensive technical documentation. PDF includes photonic architecture, instruction sets, and integration guides.');
+        });
+
+        // Counter animation
+        const counters = document.querySelectorAll('.counter');
+        const observerOptions = { threshold: 0.5 };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const counter = entry.target;
+                    const target = parseFloat(counter.dataset.target);
+                    const duration = 2000;
+                    const increment = target / (duration / 16);
+                    let current = 0;
+                    
+                    const updateCounter = () => {
+                        current += increment;
+                        if (current < target) {
+                            counter.textContent = current.toFixed(target % 1 === 0 ? 0 : 1);
+                            requestAnimationFrame(updateCounter);
+                        } else {
+                            counter.textContent = target;
+                        }
+                    };
+                    
+                    updateCounter();
+                    observer.unobserve(counter);
+                }
+            });
+        }, observerOptions);
+
+        counters.forEach(counter => observer.observe(counter));
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
