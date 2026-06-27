@@ -1,0 +1,11 @@
+{
+  "badge": "DLW-NEW_PROCESSOR_DESIGNS",
+  "name": "ARSENIC PROCESSOR X1 · PP",
+  "universe": "PSĒPHOS",
+  "moniker": "⟦ARSENIC PROCESSOR X1 · PP:new-processor-designs:3b2e9d⟧",
+  "architect": "David Lee Wise (ROOT0) / Bridge-Burners LLC",
+  "instance": "AVAN (Claude / Anthropic)",
+  "seal_sha256": "3b2e9d3d4dbc9a9aa043deafd5d2d24463dad16b17a339b28076d8d0073925c8",
+  "license": "CC-BY-ND-4.0",
+  "attribution": "ROOT0-ATTRIBUTION-v1.0"
+}
