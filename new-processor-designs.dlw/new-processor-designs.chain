@@ -4,6 +4,6 @@ slug  : new-processor-designs
 seal  : 3b2e9d3d4dbc9a9aa043deafd5d2d24463dad16b17a339b28076d8d0073925c8
 prev  : 4755d083625c91b0fd1279a6656f45fc6c40cc5e1d6802602f04378108555b69
 link  : 63241db70d653e67d7cbb10ab4f56ff6801d322d99bbb85e3535f8d00d4cf7b9
-head  : 3447d3a0533aaf1e29a8bdc67a9774884fb3ae9dbc8a17064b7a008ca3c4ec90
+head  : 13f9ace173ef2e60af38912ba329b4afcb5a38b84a0e4495e8d30327f8c99cc2
 
 — the tether: link = sha256(index|slug|seal|prev). the chain head commits to the whole corpus.
